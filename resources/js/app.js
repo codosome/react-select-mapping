@@ -4,7 +4,6 @@
  * building robust, powerful web applications using React + Laravel.
  */
 
-require('./bootstrap');
 
 import React from 'react';
 import { render } from 'react-dom'
@@ -19,8 +18,6 @@ import configureStore from './store/configureStore'
 import { createDevTools } from 'redux-devtools'
 import LogMonitor from 'redux-devtools-log-monitor'
 import DockMonitor from 'redux-devtools-dock-monitor'
-
-import './asset/app.scss'
 
 const DevTools = createDevTools(
   <DockMonitor toggleVisibilityKey="ctrl-h"
@@ -49,7 +46,7 @@ const renderDOM = Component => {
           <Router history={history} children={routes} onUpdate={handUpdatePath}/>
         </div>
       </Provider>,
-      document.getElementById('app')
+      document.getElementById('imgMap')
     );
   }
   else{
@@ -60,7 +57,7 @@ const renderDOM = Component => {
           <DevTools />
         </div>
       </Provider>,
-      document.getElementById('app')
+      document.getElementById('imgMap')
     );
   }
 }
