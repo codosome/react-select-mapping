@@ -1,0 +1,12 @@
+/node_modules
+/vendor
+/react
+/public/storage
+/storage/*.key
+/.idea
+/.vscode
+/.vagrant
+npm-debug.log
+yarn-error.log
+phpmd.html
+/public/index.html.gz

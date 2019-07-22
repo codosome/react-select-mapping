@@ -1,0 +1,95 @@
+.header-container{
+  width: 100%;
+  .header-title{
+    padding-left: 20px;
+  }
+}
+.home-container{
+  padding: 100px;
+  .drop-file-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .dropzone{
+      >div{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &:hover{
+          cursor: pointer;
+        }
+      }
+    }
+    .drop-file-text{
+      margin: 40px 0px;
+    }
+    .drop-file-input-container{
+      display: flex;
+      >div{
+        margin: 0px 40px;
+      }
+    }
+    .clippath-description{
+      margin: 20px 0px;
+      padding: 20px;
+      border-radius: 5px;
+      font-size: 0.8em;
+      color: rgba(0,0,0,0.87);
+    }
+  }
+  .image-stage-container{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 200px;
+    >div{
+      position: relative;
+      .svg-container{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        cursor: crosshair;
+        .polygon{
+          fill: #e4e4e469;
+          stroke: #9d00ff;
+          stroke-width: 1;
+          &.drawing{
+            fill: #2bff0052;
+          }
+        }
+        .circle{
+          fill: rgb(255, 255, 255);
+          stroke: rgb(51, 51, 51);
+          stroke-width: 1;
+          &:hover{
+            fill:rgb(51, 51, 51);
+          }
+        }
+      }
+    }
+  }
+  .list-image-map-container{
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    >div{
+      width: 1200px;
+      >div{
+        >div:last-child{
+          max-height: 200px !important;
+        }
+      }
+    }
+    th:last-child,td:last-child{
+      width: 150px;
+      text-align: center !important;
+    }
+    .list-image-map-row-container{
+      display: flex;
+    }
+  }
+}
