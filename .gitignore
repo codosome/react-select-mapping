@@ -10,3 +10,4 @@ npm-debug.log
 yarn-error.log
 phpmd.html
 /public/index.html.gz
+.DS_Store

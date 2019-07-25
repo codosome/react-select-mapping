@@ -13,7 +13,7 @@ module.exports={
   },
   output: {
     path: path.resolve(ROOT_PATH, 'public/js'),
-    publicPath: 'public',
+    publicPath: 'js/',
     filename: 'bundle.min.js'
   },
   module:{

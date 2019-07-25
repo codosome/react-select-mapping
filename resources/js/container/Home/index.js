@@ -25,7 +25,10 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/htmlmixed/htmlmixed'
 import RemoveIcon from 'react-icons/lib/fa/close'
 
+import imagetoPdf from '../../includes/pdf.js'
 import './style.scss'
+import 'slick-carousel/slick/slick.css';
+import Slider from "react-slick";
 
 export default class Home extends React.Component{
   constructor(props){
@@ -42,7 +45,8 @@ export default class Home extends React.Component{
       listPolygon: [],
       highlighted: [],
       hoverOn: false,
-      showDetailsPopup: false
+      showDetailsPopup: false,
+      pdfImages: []
     }
   }
 
@@ -52,9 +56,13 @@ export default class Home extends React.Component{
     let reader = new FileReader();
     let file = files[0];
     reader.onloadend = () => {
-      this.setState({
-        imagePreviewUrl: reader.result
-      });
+      if(file.type == "application/pdf") {
+        let images = this.imagetoPdf(reader.result);
+      } else {
+        this.setState({
+          imagePreviewUrl: reader.result
+        })
+      }
     }
 
     reader.onload = (theFile) => {
@@ -69,6 +77,59 @@ export default class Home extends React.Component{
     }
 
     reader.readAsDataURL(file)
+  }
+
+imagetoPdf(file) {
+
+  var images= [], currentPage = 1;
+  var scale = 1;
+
+  PDFJS.disableWorker = true; // due to CORS
+  let home = this;
+  PDFJS.getDocument(file).then(function (pdf) {
+      
+      getImages();
+
+      function getImages() {
+          pdf.getPage(currentPage).then(function(page) {
+              var viewport = page.getViewport(scale);
+              var canvas = document.createElement('canvas') , ctx = canvas.getContext('2d');
+              var renderContext = { canvasContext: ctx, viewport: viewport };
+
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+
+              page.render(renderContext).then(function() {
+                  images.push(canvas.toDataURL());
+
+                  if (currentPage < pdf.numPages) {
+                      currentPage++;
+                      getImages();
+                  } else {
+                      var sliderImages = images.map(function (image, index) {
+                        return (
+                          <div key={index}  onClick={() => this.changeMainImage(image)}><img src={image} /></div>
+                        );
+                      }.bind(home));
+                      home.setState({
+                          imagePreviewUrl: images[0],
+                          pdfImages: sliderImages
+                      })
+                  }
+              });
+          });
+      }    
+  });
+  
+  return images;
+}
+
+  changeMainImage(image) {
+    this.removeAllImageMap();
+    this.setState({
+      imagePreviewUrl: image
+    })
+    
   }
 
   handleGetImageFromUrl(){
@@ -127,21 +188,48 @@ export default class Home extends React.Component{
     )
     if(this.state.imagePreviewUrl){
       output = (
-        <div className="image-stage-container">
-          <div>
-            <img src={this.state.imagePreviewUrl} width="100%" height="auto"/>
-            <svg
-              className="svg-container"
-              onMouseDown={(e) => this.addRectOnImage(e)}
-              onMouseMove={(e) => this.handleMouseMove(e)}
-            >
-              {this.generatePolygon()}
-            </svg>
+        <div>
+          <div className="image-carousel-container">
+                {this.showCarousel()}
+          </div>
+          <div className="image-stage-container">
+            <div>
+              <img src={this.state.imagePreviewUrl} width="100%" height="auto"/>
+              <svg
+                className="svg-container"
+                onMouseDown={(e) => this.addRectOnImage(e)}
+                onMouseMove={(e) => this.handleMouseMove(e)}
+              >
+                {this.generatePolygon()}
+              </svg>
+            </div>
           </div>
         </div>
       )
     }
     return output
+  }
+
+  showCarousel(){
+
+    var settings = {
+      dots: true,
+      infinite: false,
+      autoplay: false,
+      slidesToShow: 2,
+      slidesToScroll: 1,
+      vertical: true,
+      arrows: true,
+      draggable: true,
+      dotsClass:"vertical-dots"
+    };
+    return (
+      <div className='container'>
+        <Slider {...settings}>
+            {this.state.pdfImages}
+        </Slider>
+      </div>
+    );
   }
 
   stopDrawing(e){
@@ -260,6 +348,14 @@ export default class Home extends React.Component{
         draggingPosition: `${e.nativeEvent.offsetX},${e.nativeEvent.offsetY}`
       })
     }
+  }
+
+  removeAllImageMap(){
+    const tempListPolygon = []
+    this.setState({
+      listPolygon: tempListPolygon
+    })
+    this.setState({hoverOn: false});
   }
 
   handleRemoveListImageMap(removeIndex){

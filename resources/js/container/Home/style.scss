@@ -5,7 +5,6 @@
   }
 }
 .home-container{
-  padding: 100px;
   .drop-file-container{
     display: flex;
     flex-direction: column;
@@ -38,11 +37,90 @@
       color: rgba(0,0,0,0.87);
     }
   }
+  .image-carousel-container{
+    display: inline-block;
+    width: 20%;
+    .vertical-dots
+    {
+        right:10px;
+        list-style: none;
+        display: block;
+        position: absolute;
+        top: 40%;
+        margin-top: -10px;
+        text-align: right;
+        padding-inline-start: 0px;
+        background: #009688;
+        border-radius: 10px;
+    }
+    .vertical-dots li
+    {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    .vertical-dots li button
+    {
+        font-size: 0;
+        line-height: 0;
+        display: block;
+        width: 20px;
+        height: 20px;
+        padding: 5px;
+        cursor: pointer;
+        color: transparent;
+        border: 0;
+        outline: none;
+        background: transparent;
+    }
+    .vertical-dots li button:hover,
+    .vertical-dots li button:focus
+    {
+        outline: none;
+    }
+    .vertical-dots li button:hover:before,
+    .vertical-dots li button:focus:before
+    {
+        opacity: 1;
+    }
+    .vertical-dots li button:before
+    {
+        font-family: 'slick';
+        font-size: 20px;
+        line-height: 20px;
+    
+        position: absolute;
+        top: 0;
+        left: 0;
+    
+        width: 20px;
+        height: 20px;
+    
+        content: '•';
+        text-align: center;
+    
+        opacity: .25;
+        color: black;
+    
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    .vertical-dots li.slick-active button:before
+    {
+        opacity: .75;
+        color: black;
+    }
+  }
   .image-stage-container{
-    display: flex;
+    display: inline-block;
+    width: 80%;
     justify-content: center;
     margin-bottom: 200px;
+    vertical-align: top;
     >div{
+      max-width: 60vw;
+      max-height: 100vh;
       position: relative;
       .svg-container{
         width: 100%;
