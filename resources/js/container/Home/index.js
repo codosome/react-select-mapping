@@ -46,7 +46,14 @@ export default class Home extends React.Component{
       highlighted: [],
       hoverOn: false,
       showDetailsPopup: false,
-      pdfImages: []
+      pdfImages: [],
+      listPolygonLink:[], 
+      link: '',
+      LinkText: '',
+      LinkTarget: '',
+      productSKU: '',
+      productName: '',
+      currentPopup: ''
     }
   }
 
@@ -310,18 +317,100 @@ imagetoPdf(file) {
 
   openDetailsPopup(index){
     this.setState({showDetailsPopup: true});
+    this.setState({ currentPopup: index });
+    var currentListPolygon = this.state.listPolygon[index]
+    if( currentListPolygon && currentListPolygon.linkData != undefined ) {      
+      this.setState({ link: currentListPolygon.linkData['link']});
+      this.setState({ LinkText: currentListPolygon.linkData['LinkText']});
+      this.setState({ LinkTarget: currentListPolygon.linkData['LinkTarget']});
+      this.setState({ productSKU: currentListPolygon.linkData['productSKU']});
+      this.setState({ productName: currentListPolygon.linkData['productName']});
+    } else {     
+      this.setState({ link: ""});
+      this.setState({ LinkText: ""});
+      this.setState({ LinkTarget: ""});
+      this.setState({ productSKU: ""});
+      this.setState({ productName: ""});
+    }
   }
 
   closeDetailsPopup(){
+    this.setState({ 'listPolygonLink': [] });
     this.setState({showDetailsPopup: false});
   }
 
+  setLinkData(type, value) {
+    var linkData = this.state.listPolygonLink;
+    linkData[type] = value;
+    this.setState({ 'listPolygonLink': linkData });
+    var listPolygonData = this.state.listPolygon;
+    var currentIndex  = this.state.currentPopup;
+    listPolygonData[currentIndex]["linkData"] = linkData
+    this.setState({ 'listPolygon': listPolygonData });
+  }
+
+  getLink = link => event => {
+    this.setState({ 'link': event.target.value })
+    this.setLinkData('link', event.target.value )
+  };   
+  
+  getLinkText = LinkText => event => {
+    this.setState({ 'LinkText': event.target.value })
+    this.setLinkData('LinkText', event.target.value )
+  };
+  
+  getLinkTarget = LinkTarget => event => {
+    this.setState({ 'LinkTarget': event.target.value })
+    this.setLinkData('LinkTarget', event.target.value )
+  }; 
+  
+  getProductSKU = productSKU => event => {
+    this.setState({ 'productSKU': event.target.value })
+    this.setLinkData('productSKU', event.target.value )
+  }; 
+  
+  getProductName = productName => event => {
+    this.setState({ 'productName': event.target.value })
+    this.setLinkData('productName', event.target.value )
+  }; 
+
   getDetailsPopup() {
-    var currentPolygon = this.state.listPolygon.filter((objPolygon, index) => index)
+    var currentPolygon = this.state.listPolygon.filter((objPolygon, index) => index);
+
     let output = null
     if(this.state.showDetailsPopup){
       output = (
         <Modal open={true} onClose={() => this.closeDetailsPopup()}>
+          <TextField
+            id="imgLinkText"
+            floatingLabelText="Title"
+            value={this.state.LinkText}
+            onChange={this.getLinkText("LinkText")}
+          />
+          <TextField
+            id="imgLink"
+            floatingLabelText="Link"
+            value={this.state.link}
+            onChange={this.getLink("imgLink")}
+          />
+          <TextField
+            id="productSKU"
+            floatingLabelText="Product SKU"
+            value={this.state.productSKU}
+            onChange={this.getProductSKU("productSKU")}
+          />
+          <TextField
+            id="productName"
+            floatingLabelText="Product Name"
+            value={this.state.productName}
+            onChange={this.getProductName("productName")}
+          />
+          <DropDownMenu value={this.state.LinkTarget} onChange={this.getLinkTarget("LinkTarget")} width={1}>
+            <MenuItem value={"_blank"} primaryText="New Window" />
+            <MenuItem value={'_parent'} primaryText="Parent Frame" />
+            <MenuItem value={'_self'} primaryText="Self Frame" />
+            <MenuItem value={'_top'} primaryText="Full Body" />
+          </DropDownMenu>
           
         </Modal>
       )
