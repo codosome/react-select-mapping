@@ -133,15 +133,24 @@ imagetoPdf(file) {
   }
 
   handleGetImageFromUrl(){
-    let image = new Image();
-    image.src = this.state.imageUrl
-    image.onload = () => {
-      this.setState({
-        imageWidth: image.width,
-        imageHeigth: image.height,
-        imagePreviewUrl: this.state.imageUrl
-      })
+    let extension = this.getFileExtension(this.state.imageUrl);
+    if(extension == "pdf") {
+      this.imagetoPdf(this.state.imageUrl);
+    } else {
+      let image = new Image();
+      image.src = this.state.imageUrl
+      image.onload = () => {
+        this.setState({
+          imageWidth: image.width,
+          imageHeigth: image.height,
+          imagePreviewUrl: this.state.imageUrl
+        })
+      }
     }
+  }
+
+  getFileExtension(filename) {
+    return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
   }
 
   handleUrlImageChanged(value){
