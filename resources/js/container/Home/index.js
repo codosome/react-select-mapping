@@ -19,6 +19,7 @@ import {
 } from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
+import SelectField from 'material-ui/SelectField';
 import Modal from 'react-responsive-modal';
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css'
@@ -340,12 +341,16 @@ imagetoPdf(file) {
   }
 
   setLinkData(type, value) {
-    var linkData = this.state.listPolygonLink;
-    linkData[type] = value;
-    this.setState({ 'listPolygonLink': linkData });
     var listPolygonData = this.state.listPolygon;
     var currentIndex  = this.state.currentPopup;
-    listPolygonData[currentIndex]["linkData"] = linkData
+    if( listPolygonData[currentIndex]["linkData"] ) {
+      listPolygonData[currentIndex]["linkData"][type] = value
+    } else {
+      var linkData = this.state.listPolygonLink;
+      linkData[type] = value;
+      this.setState({ 'listPolygonLink': linkData });
+      listPolygonData[currentIndex]["linkData"] = linkData
+    }
     this.setState({ 'listPolygon': listPolygonData });
   }
 
@@ -358,12 +363,12 @@ imagetoPdf(file) {
     this.setState({ 'LinkText': event.target.value })
     this.setLinkData('LinkText', event.target.value )
   };
-  
-  getLinkTarget = LinkTarget => event => {
-    this.setState({ 'LinkTarget': event.target.value })
-    this.setLinkData('LinkTarget', event.target.value )
-  }; 
-  
+
+  getLinkTarget = (event, index, value) => {
+    this.setState({ 'LinkTarget': value })
+    this.setLinkData('LinkTarget', value )
+  };
+
   getProductSKU = productSKU => event => {
     this.setState({ 'productSKU': event.target.value })
     this.setLinkData('productSKU', event.target.value )
@@ -405,12 +410,16 @@ imagetoPdf(file) {
             value={this.state.productName}
             onChange={this.getProductName("productName")}
           />
-          <DropDownMenu value={this.state.LinkTarget} onChange={this.getLinkTarget("LinkTarget")} width={1}>
+          <SelectField
+            floatingLabelText="Link Target"
+            value={this.state.LinkTarget}
+            onChange={this.getLinkTarget}
+          >
             <MenuItem value={"_blank"} primaryText="New Window" />
             <MenuItem value={'_parent'} primaryText="Parent Frame" />
             <MenuItem value={'_self'} primaryText="Self Frame" />
             <MenuItem value={'_top'} primaryText="Full Body" />
-          </DropDownMenu>
+          </SelectField>
           
         </Modal>
       )
@@ -548,17 +557,38 @@ imagetoPdf(file) {
         let points = obj.coordinates.map((objCoor) => {
           return `${objCoor.x},${objCoor.y}`
         })
+        var imageUrl = `${this.state.imagePreviewUrl}`;
+        var shape = `${this.state.value}`;
+        var LinkTarget = '';
+        var LinkText = '';
+        var productName = '';
+        var link = '';
+        if( obj["linkData"] ) {
+          if( obj["linkData"]['LinkTarget'] != undefined ) { LinkTarget = `${obj["linkData"]['LinkTarget']}` }
+          if( obj["linkData"]['LinkText'] != undefined ) { LinkText = `${obj["linkData"]['LinkText']}` }
+          if( obj["linkData"]['productName'] != undefined ) { productName = `${obj["linkData"]['productName']}` }
+          if( obj["linkData"]['link'] != undefined ) { link = `${obj["linkData"]['link']}` }
+        }
         points = points.join(' ')
-        return `<polygon points="${points}" />`
-      })
+        return `<div>
+                  <p>
+                    <img name="usaMap" usemap="#m_usaMap" border="0" width="100%" src="${imageUrl}">
+                  </p>
+                  <map name="m_usaMap">
+                    <area target="${LinkTarget}" alt="${LinkText}" title="${productName}" href="${link}" coords="${points}" shape="${shape}">
+                  </map>
+                </div>`
+        })
       arrayPoint = arrayPoint.join('\n')
       const code = `
-<svg width="0" height="0">
-<clipPath id="clipPath">
-  ${arrayPoint}
-</clipPath>
-</svg>
-      `
+        <div id=“flipbook”>
+          <div class=“hard”> Turn.js </div>
+          <div class=“hard”></div>
+            ${arrayPoint}
+          <div class=“hard”></div>
+          <div class=“hard”></div>
+        </div>
+              `
       output = (
         <Modal open={true} onClose={() => this.closeResult()}>
           <CodeMirror
