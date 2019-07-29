@@ -121,7 +121,9 @@ imagetoPdf(file) {
                       }.bind(home));
                       home.setState({
                           imagePreviewUrl: images[0],
-                          pdfImages: sliderImages
+                          pdfImages: sliderImages,
+                          imageHeigth: viewport.height,
+                          imageWidth:  viewport.width
                       })
                   }
               });
@@ -204,6 +206,18 @@ imagetoPdf(file) {
       </div>
     )
     if(this.state.imagePreviewUrl){
+
+      var imageViewBoxHeight = '';
+      var imageViewBoxWidth = '';
+
+      if( this.state.imageWidth != undefined && this.state.imageHeigth != undefined ) {
+        imageViewBoxHeight = this.state.imageHeigth;
+        imageViewBoxWidth = this.state.imageWidth;
+      } else {
+        imageViewBoxHeight = '0';
+        imageViewBoxWidth = '0';
+      }
+      
       output = (
         <div>
           <div className="image-carousel-container">
@@ -212,7 +226,7 @@ imagetoPdf(file) {
           <div className="image-stage-container">
             <div>
               <img src={this.state.imagePreviewUrl} width="100%" height="auto"/>
-              <svg
+              <svg viewBox={"0 0 " + imageViewBoxWidth +" "+ imageViewBoxHeight}
                 className="svg-container"
                 onMouseDown={(e) => this.addRectOnImage(e)}
                 onMouseMove={(e) => this.handleMouseMove(e)}
@@ -264,7 +278,7 @@ imagetoPdf(file) {
         <circle
           className="circle"
           key={rectIndex}
-          r="4"
+          r="10"
           cx={objRect.x}
           cy={objRect.y}
           onMouseDown={(e) => this.stopDrawing(e, finishDrawing)}
@@ -428,10 +442,23 @@ imagetoPdf(file) {
   }
   
   addRectOnImage(e){
+    
+    var currWidth = document.querySelector(".image-stage-container div").offsetWidth
+
+    var currHeight = document.querySelector(".image-stage-container div").offsetHeight
+
+    var currentHeightPercentage = ( ( e.nativeEvent.offsetY ) / (currHeight) )
+
+    var currentWidthPercentage = ( ( e.nativeEvent.offsetX ) / (currWidth) )
+
+    var offsetYValu = ( currentHeightPercentage ) * this.state.imageHeigth
+
+    var offsetXValu = ( currentWidthPercentage ) * this.state.imageWidth
+
     if(this.state.isDrawing){
       const tempListPolygon = this.state.listPolygon
       let lastPolygon = tempListPolygon[tempListPolygon.length - 1]
-      lastPolygon.coordinates.push({x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY})
+      lastPolygon.coordinates.push({x: offsetXValu, y: offsetYValu})
       tempListPolygon[tempListPolygon.length - 1] = lastPolygon
       this.setState({
         listPolygon: tempListPolygon,
@@ -440,7 +467,7 @@ imagetoPdf(file) {
     else if(!this.state.hoverOn) {
       const tempListPolygon = this.state.listPolygon
       tempListPolygon.push({
-        coordinates: [{x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY}]
+        coordinates: [{x: offsetXValu, y: offsetYValu}]
       })
       this.setState({
         isDrawing: true,
@@ -451,8 +478,21 @@ imagetoPdf(file) {
 
   handleMouseMove(e){
     if(this.state.isDrawing){
+    
+      var currWidth = document.querySelector(".image-stage-container div").offsetWidth
+
+      var currHeight = document.querySelector(".image-stage-container div").offsetHeight
+
+      var currentHeightPercentage = ( ( e.nativeEvent.offsetY ) / (currHeight) )
+
+      var currentWidthPercentage = ( ( e.nativeEvent.offsetX ) / (currWidth) )
+
+      var offsetYValu = ( currentHeightPercentage ) * this.state.imageHeigth
+
+      var offsetXValu = ( currentWidthPercentage ) * this.state.imageWidth
+      
       this.setState({
-        draggingPosition: `${e.nativeEvent.offsetX},${e.nativeEvent.offsetY}`
+        draggingPosition: `${offsetXValu},${offsetYValu}`
       })
     }
   }
@@ -553,11 +593,14 @@ imagetoPdf(file) {
   getResultModal(){
     let output = null
     if(this.state.showResult){
+      var imageUrl = `${this.state.imagePreviewUrl}`;
+      var imageHeigth = `${this.state.imageHeigth}px`;
+      var imageWidth = `${this.state.imageWidth}px`;
+
       let arrayPoint = this.state.listPolygon.map((obj, index) => {
         let points = obj.coordinates.map((objCoor) => {
           return `${objCoor.x},${objCoor.y}`
         })
-        var imageUrl = `${this.state.imagePreviewUrl}`;
         var shape = `${this.state.value}`;
         var LinkTarget = '';
         var LinkText = '';
@@ -570,21 +613,23 @@ imagetoPdf(file) {
           if( obj["linkData"]['link'] != undefined ) { link = `${obj["linkData"]['link']}` }
         }
         points = points.join(' ')
-        return `<div>
-                  <p>
-                    <img name="usaMap" usemap="#m_usaMap" border="0" width="100%" src="${imageUrl}">
-                  </p>
-                  <map name="m_usaMap">
-                    <area target="${LinkTarget}" alt="${LinkText}" title="${productName}" href="${link}" coords="${points}" shape="${shape}">
-                  </map>
-                </div>`
+        return `
+                <area target="${LinkTarget}" alt="${LinkText}" title="${productName}" href="${link}" coords="${points}" shape="${shape}">
+              `
         })
       arrayPoint = arrayPoint.join('\n')
       const code = `
         <div id=“flipbook”>
           <div class=“hard”> Turn.js </div>
-          <div class=“hard”></div>
-            ${arrayPoint}
+          <div class=“hard”></div><div>
+            <div>
+              <p>
+                <img name="usaMap" width="${imageWidth}" height="${imageHeigth}"  usemap="#m_usaMap" border="0" src="${imageUrl}">
+              </p>
+              <map name="m_usaMap">
+                ${arrayPoint}
+              </map>
+            </div>
           <div class=“hard”></div>
           <div class=“hard”></div>
         </div>
