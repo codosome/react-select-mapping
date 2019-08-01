@@ -259,7 +259,7 @@ imagetoPdf(file) {
           </div>
           <div className="image-stage-container">
             <div>
-              <img src={this.state.imagePreviewUrl} width="100%" height="auto"/>
+              <img src={this.state.imagePreviewUrl} width="100%" height="auto" className="main-image" />
               <svg viewBox={"0 0 " + imageViewBoxWidth +" "+ imageViewBoxHeight}
                 className="svg-container"
                 onMouseDown={(e) => this.addRectOnImage(e)}
@@ -494,9 +494,15 @@ imagetoPdf(file) {
 
     var currHeight = document.querySelector(".image-stage-container div").offsetHeight
 
-    var currentHeightPercentage = ( ( e.nativeEvent.offsetY ) / (currHeight) )
+    var imgStart = document.querySelector("img.main-image").getBoundingClientRect()
 
-    var currentWidthPercentage = ( ( e.nativeEvent.offsetX ) / (currWidth) )
+    var imgStartX = imgStart.x
+
+    var imgStartY = imgStart.y
+
+    var currentHeightPercentage = ( (  e.clientY - imgStartY  ) / (currHeight) )
+
+    var currentWidthPercentage = ( (  e.clientX - imgStartX  ) / (currWidth) )
 
     var offsetYValu = ( currentHeightPercentage ) * this.state.imageHeigth
 
@@ -551,9 +557,15 @@ imagetoPdf(file) {
 
       var currHeight = document.querySelector(".image-stage-container div").offsetHeight
 
-      var currentHeightPercentage = ( ( e.nativeEvent.offsetY ) / (currHeight) )
+      var imgStart = document.querySelector("img.main-image").getBoundingClientRect()
 
-      var currentWidthPercentage = ( ( e.nativeEvent.offsetX ) / (currWidth) )
+      var imgStartX = imgStart.x
+
+      var imgStartY = imgStart.y
+
+      var currentHeightPercentage = ( ( e.clientY - imgStartY ) / (currHeight) )
+
+      var currentWidthPercentage = ( ( e.clientX - imgStartX ) / (currWidth) )
 
       var offsetYValu = ( currentHeightPercentage ) * this.state.imageHeigth
 
