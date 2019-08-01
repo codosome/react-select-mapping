@@ -127,12 +127,19 @@ imagetoPdf(file) {
                       getImages();
                   } else {
                       var imageArray = []
+
+                      var polygonData = home.state.prevPdfPolygonData
+
                       var sliderImages = images.map(function (image, index) {
+
+                        polygonData[index] = [];
+
                         imageArray.push( image.url )
                         return (
                           <div key={index}  onClick={() => this.changeMainImage(image.url,image.height,image.width,index)}><img src={image.url} /></div>
                         );
                       }.bind(home));
+
                       home.setState({
                           imagePreviewUrl: images[0].url,
                           pdfImages: sliderImages,
@@ -140,9 +147,11 @@ imagetoPdf(file) {
                           imageWidth: images[0].width,
                           pdfLoaded: true,
                           currentImageIndex: 0,
-                          images: imageArray
+                          images: imageArray,
+                          prevPdfPolygonData: polygonData
 
                       })
+
                   }
               });
           });
@@ -666,9 +675,12 @@ imagetoPdf(file) {
     let code = ''
     var mapAndCode = ''
     if(this.state.showResult){
-      var imageUrl = `${this.state.imagePreviewUrl}`;
-      var imageHeigth = `${this.state.imageHeigth}px`;
-      var imageWidth = `${this.state.imageWidth}px`;
+      var imageUrl = ''
+      var imageHeigth = ''
+      var imageWidth = ''
+      if( this.state.imagePreviewUrl != undefined ) { imageUrl = `${this.state.imagePreviewUrl}` }
+      if( this.state.imageHeigth != undefined ) { imageHeigth = `${this.state.imageHeigth}px` }
+      if( this.state.imageWidth != undefined ) { imageWidth = `${this.state.imageWidth}px` }
         let pdfArrayPoint = ''
         let pdfFinalOutput = ''
         if( this.state.pdfLoaded == true ) {
@@ -694,7 +706,7 @@ imagetoPdf(file) {
                     `
             })
             pdfArrayPoint = pdfArrayPoint.join('\n')
-            if( pdfArrayPoint != '' && pdfArrayPoint != undefined ) {
+            
               return `
                 <div>
                   <p>
@@ -705,7 +717,6 @@ imagetoPdf(file) {
                   </map>
                 </div>
               `
-            }
           })
           pdfFinalOutput = pdfFinalOutput.join('\n')
           code = `
@@ -741,7 +752,6 @@ imagetoPdf(file) {
             })
           arrayPoint = arrayPoint.join('\n')
 
-          if( arrayPoint !="" && arrayPoint != undefined ) {
             mapAndCode = `
                         <div>
                           <p>
@@ -753,7 +763,6 @@ imagetoPdf(file) {
                         </div>
                           
                       `
-          }
           code = `
             <div id=“flipbook”>
               <div class=“hard”> Turn.js </div>
