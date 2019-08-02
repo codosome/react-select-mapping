@@ -176,27 +176,6 @@ imagetoPdf(file) {
     })    
   }
 
-  handleGetImageFromUrl(){
-    let extension = this.getFileExtension(this.state.imageUrl);
-    if(extension == "pdf") {
-      this.imagetoPdf(this.state.imageUrl);
-    } else {
-      let image = new Image();
-      image.src = this.state.imageUrl
-      image.onload = () => {
-        this.setState({
-          imageWidth: image.width,
-          imageHeigth: image.height,
-          imagePreviewUrl: this.state.imageUrl
-        })
-      }
-    }
-  }
-
-  getFileExtension(filename) {
-    return filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
-  }
-
   handleUrlImageChanged(value){
     this.setState({
       imageUrl: value
@@ -210,20 +189,6 @@ imagetoPdf(file) {
           <Dropzone onDrop={(file) => this.onDrop(file)}>
             <p>Drop File Here</p>
           </Dropzone>
-        </div>
-        <div className="drop-file-text">OR</div>
-        <div className="drop-file-input-container">
-          <TextField
-            hintText="Image URL"
-            value={this.state.imageUrl}
-            onChange={(e, value) => this.handleUrlImageChanged(value)}
-          />
-          <div>
-            <RaisedButton
-              label="Get Image"
-              onClick={() => this.handleGetImageFromUrl()}
-             />
-          </div>
         </div>
         <div>
           <Paper zDepth={3}>
@@ -664,29 +629,15 @@ imagetoPdf(file) {
             <MenuItem value={'rectangle'} primaryText="Rectangle" />
           </DropDownMenu>
           <ToolbarSeparator />
-          <RaisedButton label="Get Coordinate" primary={true} onClick={() => this.showResult()}/>
+          <RaisedButton label="Get Coordinate" primary={true} onClick={() => this.getResultModal()}/>
         </ToolbarGroup>
       </Toolbar>
     )
   }
 
-  showResult(){
-    this.setState({
-      showResult: true
-    })
-  }
-
-  closeResult(){
-    this.setState({
-      showResult: false
-    })
-  }
-
   getResultModal(){
-    let output = null
     let code = ''
     var mapAndCode = ''
-    if(this.state.showResult){
       var imageUrl = ''
       var imageHeigth = ''
       var imageWidth = ''
@@ -785,21 +736,23 @@ imagetoPdf(file) {
             </div>
                   `
         }
-      output = (
-        <Modal open={true} onClose={() => this.closeResult()}>
-          <CodeMirror
-            value={code}
-            width="100%"
-            height="100%"
-            options={{
-              mode: 'htmlmixed',
-              readOnly: true
-            }}
-          />
-        </Modal>
-      )
-    }
-    return output
+      
+    var filename = "coordinates.html"
+
+    var element = document.createElement('a')
+
+    element.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(code))
+
+    element.setAttribute('download', filename)
+
+    element.style.display = 'none'
+
+    document.body.appendChild(element)
+
+    element.click()
+
+    document.body.removeChild(element)
+
   }
 
   render() {
@@ -813,7 +766,6 @@ imagetoPdf(file) {
             { this.getImageContainer() }
           </div>
         </div>
-        {this.getResultModal()}
         {this.getDetailsPopup()}
       </div>
     )
