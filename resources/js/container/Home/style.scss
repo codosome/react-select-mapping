@@ -138,6 +138,14 @@
             fill: #2bff0052;
           }
         }
+        circle.Circle {
+          fill: #e4e4e469;
+          stroke: #9d00ff;
+          stroke-width: 1;
+          &.drawing{
+            fill: #2bff0052;
+          }
+        }
         .polygon{
           fill: #e4e4e469;
           stroke: #9d00ff;
@@ -148,6 +156,11 @@
         }
         g.hover-on  {
           .rectangle {
+            &:not(.drawing) {
+              fill: #cddc397d;
+            }
+          }
+          circle.Circle {
             &:not(.drawing) {
               fill: #cddc397d;
             }
